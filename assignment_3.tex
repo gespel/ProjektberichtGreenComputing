@@ -195,7 +195,7 @@ Der \texttt{awareness\_daemon} führt nur lesende Zugriffe auf die Datenbank aus
 \section{Implementierung}
 Im folgenden Kapitel werden die Hauptänderungen der EPSA-Erweiterung sowie zentrale Bestandteile des \texttt{awareness\_daemon} vorgestellt.
 \subsection{Slurm Plugin}
-Zu Beginn des Projektes wurden zunächst einige Änderungen vorgenommen, damit EPSA überhaupt mittels der neuen Slurm-Bibliotheken gebaut werden kann. Das EPS-Plugin, auf dem EPSA basiert, wird seit geraumer Zeit nicht mehr weiterentwickelt und hat somit auch nicht die Anpassungen modernerer Slurm-Versionen, vor allem an Datenstrukturen, vorgenommen. Daraufhin wurden die erste Funktionalität des Energiemessungs-Threads sowie die Ausgabe an den Nutzer mittels File-Writes implementiert die im Folgenden vorgestellt werden (Code gekürzt):
+Zu Beginn des Projektes wurden zunächst einige Änderungen vorgenommen, damit EPSA überhaupt mittels der neuen Slurm-Bibliotheken gebaut werden kann. Das EPS-Plugin, auf dem EPSA basiert, wird seit geraumer Zeit nicht mehr weiterentwickelt und hat somit auch nicht die Anpassungen modernerer Slurm-Versionen, vor allem an Datenstrukturen, vorgenommen. Daraufhin wurden die erste Funktionalität des Energiemessungs-Threads sowie die Ausgabe an den Nutzer mittels File-Writes implementiert, die im Folgenden vorgestellt werden (Code gekürzt):
 \begin{minted}[xleftmargin=20pt,linenos]{c}
 static void* epilog_energy_thread(void* arg) {
     PGconn* db_connection = connect_db();
@@ -265,7 +265,7 @@ Die Sammlung der Nutzerdaten geschieht über einen Thread, der von der \texttt{a
 
 Das Web-Frontend wird mittels eines Flask-Servers bereitgestellt.
 
-Der Email-Client verwendet das Python-Pip-Paket namens \texttt{email} und die entsprechenden Nachrichten zum Energieverbrauch werden wie folgt generiert:
+Der Email-Client verwendet das Python-Pip-Paket namens \texttt{email}, und die entsprechenden Nachrichten zum Energieverbrauch werden wie folgt generiert:
 \begin{minted}[xleftmargin=20pt,linenos]{python}
 def _build_message(self, user):
     device_name, device_time = self.comparator.compare_consumption(
@@ -293,8 +293,74 @@ def _build_message(self, user):
     )
     return (user.email, "Your energy consumption this week", body)
 \end{minted}
+Wie in Zeile 2 bis 4 zu sehen ist, wird anhand der vom Nutzer verbrauchten Energie ein Gerät und eine entsprechende Laufzeit mithilfe der \mintinline{python}{Comparator()}-Klasse berechnet. Diese Klasse ist im Kern die Hauptfunktionalität des gesamten Projekts, da mit ihrer Hilfe aus einer Liste von vorher definierten elektrischen Haushaltsgeräten eines zufällig ausgewählt wird. Daraufhin wird der entsprechende Verbrauch zusammen mit dem Gerätenamen als Tupel zurückgegeben und kann in die entsprechenden Interfaces eingebaut werden. Die erwähnte Vergleichsfunktion sieht wie folgt aus:
+\begin{minted}[xleftmargin=20pt,linenos]{python}
+def compare_consumption(self, consumption_in_kwh):
+    close_devices = []
+    consumption_in_watthours = 
+        consumption_in_kwh * 1000  # Convert kWh
+    min_time_seconds = 10
+
+    for device, watts in self.consumers_in_watts:
+        required_time_seconds = 
+            consumption_in_watthours / watts * 3600
+        if min_time_seconds <= required_time_seconds:
+            close_devices.append((device, required_time_seconds))
+
+    if not close_devices:
+        close_devices = [
+            (device, consumption_in_watthours / watts * 3600)
+            for device, watts in self.consumers_in_watts
+        ]
+
+    compare_device = 
+        close_devices[random.randint(0, len(close_devices) - 1)]
+
+    return compare_device[0], 
+        self.sensible_time_output(compare_device[1])
+\end{minted}
+Als Eingabe übergibt man den direkten Verbrauch in kWh. Dazu wird eine Liste mit den nächstgelegenen Verbrauchern erstellt und dann zufällig aus dieser ausgewählt. Damit die Textausgabe nicht nur die Sekunden direkt, sondern eine sinnvollere Ausgabe wie '1 hour 4 minutes und 32 seconds' ausgibt, wurde zusätzlich eine Klassenmethode hinzugefügt.
+\begin{itemize}
+    \item \mintinline{python}{Comparator.sensible_time_output()}
+\end{itemize}
+Um eine elegantere Programmierschnittstelle anbieten zu können, wurde eine Datenklasse 
+\begin{itemize}
+    \item \mintinline{python}{EPSAUser()}
+\end{itemize} 
+implementiert, die von entsprechenden Zugriffsfunktionen aus der
+\begin{itemize}
+    \item \mintinline{python}{DatabaseHandler()}-Klasse
+\end{itemize} 
+instanziiert werden. Die Comparator-Klasse wird sowohl vom Email-Client als auch vom Webinterface zur Erstellung des Output-Textes zum Energieverbrauch verwendet.
 \section{Limitationen}
+Die Limitation des Projektes ist vor allem die Bindung des Programms an die Datenbank. Sollte es dort zu einem Fehler oder Ausfall kommen, ist der gesamte Service blockiert. Im Entwicklungsprozess ist dies mehrmals vorgekommen und hat außerdem dazu geführt, dass Jobs im Slurm-Cluster nicht mehr beendet werden konnten und somit das Cluster in einem Fehlerzustand verweilte. Dies kann lange Debugging-Zyklen nach sich ziehen und wäre im Optimalfall natürlich durch eine Fehlerresilienz auszugleichen oder abzufangen.
+
+Programmspezifisch erlaubt EPSA außerdem, genauso wie EPS, kein Energieprofiling in Code-Bereichen. Dies ist eines der Kern-Features von EMA und wäre natürlich sehr hilfreich bei der Identifikation von Energieintensiven Bereichen in einer verteilten Anwendung im Slurm-Kontext. Eine derartige Implementierung würde jedoch eine Reihe von Features benötigen und wäre mit erheblichem Programmieraufwand verbunden.
+
+Zuletzt sei erwähnt, dass es nicht möglich ist, Energiemessungen von abgebrochenen oder fehlerhaft beendeten Jobs zu erheben. Dies ist der Tatsache geschuldet, dass Energiemessungen erst mit dem Durchlauf der Epilog-Funktionen abgelegt werden, die insbesondere nicht aufgerufen werden, wenn das Programm eines Jobs vorzeitig beendet wird.
+\newpage
 \section{Deployment}
+Da das Projekt EPSA von Anfang an mit dem Ziel, in Produktion eingesetzt zu werden, entwickelt wurde, wurde stets versucht, eine reproduzierbare und wartbare Architektur zu schaffen.
+
+Zunächst muss auf allen Knoten das EPSA-PrEp-Plugin installiert werden. Dazu kann das Github-Repository geforkt werden und mit dem entsprechenden CMakeFile gebaut werden. Als Ergebnis wird eine Shared-Library erstellt, die dann an den entsprechend von Slurm konfigurierten Plugin-Pfaden hinterlegt werden muss. Außerdem benötigt jeder Knoten die notwendigen Postgres-Bibliotheken, die vorzugshalber mithilfe des jeweiligen Betriebssystem-Paketmanagers installiert werden sollten. Dabei ist auf die korrekte Erstellung des Credential-Strings der Postgres-Datenbank zu achten, da diese von den jeweiligen Plugin-Instanzen sowie dem \texttt{awareness\_daemon} benötigt werden.
+
+Um den Build-Prozess möglichst Entwickler*innenfreundlich zu gestalten, wurde ein entsprechendes Skript zum bauen des Plugins erstellt. 
+Es kann wie folgt aufgerufen werden:
+\begin{minted}{bash}
+./build.sh
+\end{minted}
+Um den \texttt{awareness\_daemon} zu installieren, sollte folgendes ausgeführt werden:
+\begin{minted}{bash}
+cd awareness_daemon
+uv tool install .
+\end{minted}
+Dies installiert das \texttt{awareness\_daemon} an der korrekten, von UV voreingestellten Stelle. Im Pfad des \texttt{awareness\_daemon} liegen außerdem zwei Konfigurationsdateien:
+\begin{itemize}
+    \item \texttt{awareness-daemon-config.yaml} beinhaltet allgemeine Serverkonfigurationen wie Instanz-Name, Server-Adresse und Server-Port. Außerdem kann der Energiepreis sowie die Landeswährung angepasst werden.
+    \item \texttt{consumers.yaml} beinhaltet eine Liste von Energieverbrauchern mit deren Namen und dem entsprechenden Wattverbrauch.
+\end{itemize}
+Diese Konfigurationen sollten vor inbetriebnahme entsprechend angepasst werden, sind allerdings mit Default-Werten belegt, die der Testumgebung des Clusters an der Universität Potsdam entsprechen.
+\newpage
 \section{Fazit}
 
 \newpage
