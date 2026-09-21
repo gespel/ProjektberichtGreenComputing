@@ -63,10 +63,10 @@
 \tableofcontents
 \newpage
 \section{Einleitung}
-Hochleistungsrechencluster sind ein fundamentaler Bestandteil der modernen Forschungslandschaft, insbesondere in den Computerwissenschaften. Folglich besitzt jede größere Forschungsinstitution meist eigene Rechencluster, auf denen ein breites Feld an Anwendungen
+Hochleistungsrechencluster sind ein fundamentaler Bestandteil der modernen Forschungslandschaft, insbesondere in den Computerwissenschaften \cite{hintemann2025rechenzentren}. Folglich besitzt jede größere Forschungsinstitution meist eigene Rechencluster, auf denen ein breites Feld an Anwendungen
 ausgeführt wird. Da in der Regel eine Menge von Personen sich etwaige Computerverbünde teilen, ist es notwendig, eine Cluster Management Software aufzusetzen. Diese übernimmt die Verwaltung der Ressourcen des Clusters. Dabei wird meist Slurm eingesetzt, was die Grundlage für die hier vorliegende Projektarbeit bieten soll. Es wurde eine Erweiterung des EPS-PrEp-Plugins der Slurm-API vorgenommen, die einen tieferen Einblick in den Energieverbrauch einzelner Slurm-Jobs ermöglicht. Das Ergebnis der Arbeit ist ein Programm namens \texttt{awareness\_daemon} sowie eine Erweiterung des ursprünglichen EPS-Plugins um weitere Ausgaben und eine Anpassung der entsprechenden Datenbank. 
 
-Die Lizenzierung wurde aus dem Ursprungs-Github-Repository übernommen und ist somit unter der MIT License lizenziert. Es wurde ein Projekt-Logo erstellt (siehe Abbildung 2.1). Das neue Projekt ist nun im Github-Repository 
+Die Lizenzierung wurde aus dem Ursprungs-Github-Repository übernommen und ist somit unter der MIT License lizenziert \cite{epsa}. Es wurde ein Projekt-Logo erstellt (siehe Abbildung 2.1). Das neue Projekt ist nun im Github-Repository 
 \begin{itemize}
     \item \href{https://github.com/gespel/EPSA}{https://github.com/gespel/EPSA} 
 \end{itemize}
@@ -75,9 +75,9 @@ Die Projektarbeit wurde von Frau Prof. Dr. Schnor und Max Lübke, M.Sc., betreut
 Der fortschreitende Klimawandel verlangt es heute mehr denn je zuvor, den Energieverbrauch der Menschheit derart zu verringern, dass ein nachhaltiges Leben auf der Erde auch für spätere Generationen von Menschen möglich sein wird. Das bedeutet, in allen Bereichen des Alltags
 , die eng mit dem Energieverbrauch verbunden sind, ein Verständnis zu schaffen, was der tatsächliche Verbrauch ist. 
 
-Menschen neigen dazu, den Alltag derart zu abstrahieren, dass ein Gefühl für den eigenen Energieverbrauch meist verloren geht, und es somit zunehmend schwerer wird, eine Akzeptanz für die benötigten Energiesparmaßnahmen zu schaffen. Auch die Nutzung von extrem energieintensiven Hochleistungsrechnern muss dementsprechend sparsam behandelt werden, da ein Slurm-Job, der alle Ressourcen eines Clusters verwendet, Tausende Watt an Leistung nutzen kann und meist eine relativ lange Laufzeit besitzt. Dementsprechend ist derartige Arbeit einer der Hauptenergieverbraucher, pro Kopf gerechnet. 
+Menschen neigen dazu, den Alltag derart zu abstrahieren, dass ein Gefühl für den eigenen Energieverbrauch meist verloren geht, und es somit zunehmend schwerer wird, eine Akzeptanz für die benötigten Energiesparmaßnahmen zu schaffen. Auch die Nutzung von extrem energieintensiven Hochleistungsrechnern muss dementsprechend sparsam behandelt werden, da ein Slurm-Job, der alle Ressourcen eines Clusters verwendet, Tausende Watt an Leistung nutzen kann und meist eine relativ lange Laufzeit besitzt \cite{inbook}. Dementsprechend ist derartige Arbeit einer der Hauptenergieverbraucher, pro Kopf gerechnet. 
 
-Technisch wird ein Job auf solch einem Cluster mittels eines Terminals auf dem Kopfknoten gestartet, bei dem explizit angegeben werden muss, welche Ressourcen verwendet werden sollen. Die Bedienung ist allerdings relativ einfach, und besonders das hochskalieren auf Hunderte, wenn nicht sogar Tausende, CPU-Kerne ist letztendlich nur eine Zahl in einem Shell-Skript. Hier setzt nun das Prinzip der Energy-Awareness an, das allgemein die Zielsetzung hat, ein abstraktes menschliches Gefühl für Energieverbrauch herzustellen, damit eine Grundsatz-Moral seitens der Nutzer*innen entstehen kann. Dazu gibt es unterschiedliche Ansätze. 
+Technisch wird ein Job auf solch einem Cluster mittels eines Terminals auf dem Kopfknoten gestartet, bei dem explizit angegeben werden muss, welche Ressourcen verwendet werden sollen. Die Bedienung ist allerdings relativ einfach, und besonders das hochskalieren auf Hunderte, wenn nicht sogar Tausende, CPU-Kerne ist letztendlich nur eine Zahl in einem Shell-Skript \cite{slurmdoc}. Hier setzt nun das Prinzip der Energy-Awareness an, das allgemein die Zielsetzung hat, ein abstraktes menschliches Gefühl für Energieverbrauch herzustellen, damit eine Grundsatz-Moral seitens der Nutzer*innen entstehen kann. Dazu gibt es unterschiedliche Ansätze. 
 \begin{figure}[htbp]
   \centering
   \includesvg{img/epsa-icon}
@@ -89,7 +89,7 @@ Der in diesem Projekt verwendete Ansatz nutzt ein Energiemessungs-Framework, um 
 \section{Grundlagen}
 Für die Slurm-Erweiterung EPSA werden eine Reihe von technischen Hilfsmitteln genutzt. Einerseits wird ein Framework benötigt, um die verbrauchte Energie auf den entsprechenden Rechenknoten zu messen, und andererseits muss es eine Schnittstelle seitens der Clusterverwaltungssoftware geben, damit laufende Jobs mit den Aufrufern assoziiert werden können. Außerdem muss eine Messungsumgebung gestartet werden, die zeitlich an der Ausführung des Jobs gebunden ist und korrekt beendet werden muss. Im folgenden werden diese Hilfsmittel vorgestellt und im Detail erläutert.
 \subsection{EMA}
-EMA ist ein von der PERFACCT GmbH entwickeltes Framework zur Energiemessung von Anwendungen aus dem Umfeld des wissenschaftlichen Rechnens. Es ist modular aufgebaut und erlaubt somit die Integration verschiedener Hardwarearchitekturen mittels eines Plugin Systems. Dies ist vor allem notwendig, weil sich Rechencluster meist aus heterogener Hardware zusammensetzen und die Ausgabe des Energieverbrauchs, bis auf einige Ausnahmen wie IPMI, Hardware spezifisch ist. Es ist somit wünschenswert, eine programmatische Abstraktion zu schaffen, damit Energiemessungen zentral und vor allem normalisiert aggregiert und ausgewertet werden können.
+EMA ist ein von der PERFACCT GmbH entwickeltes Framework zur Energiemessung von Anwendungen aus dem Umfeld des wissenschaftlichen Rechnens \cite{perfacct_naaice}. Es ist modular aufgebaut und erlaubt somit die Integration verschiedener Hardwarearchitekturen mittels eines Plugin Systems. Dies ist vor allem notwendig, weil sich Rechencluster meist aus heterogener Hardware zusammensetzen und die Ausgabe des Energieverbrauchs, bis auf einige Ausnahmen wie IPMI, hardwarespezifisch ist. Es ist somit wünschenswert, eine programmatische Abstraktion zu schaffen, damit Energiemessungen zentral und vor allem normalisiert aggregiert und ausgewertet werden können.
 
 Es gibt unterschiedliche Möglichkeiten, wie EMA die verbrauchte Energie eines Programms messen kann. Zunächst gibt es die regionsbasierte Energiemessung. Dabei können mittels Präprozessor-Makros Regionen definiert werden, in denen speziell Energiemessungen stattfinden sollen. Im folgenden Codebeispiel ist eine solche Energiemessung implementiert:
 \begin{minted}[xleftmargin=20pt,linenos]{c}
@@ -114,15 +114,15 @@ int main(void) {
     return 0;
 }
 \end{minted}
-In Zeile 2 wird zunächst die EMA-Laufzeitumgebung initialisiert. Daraufhin werden in Zeile 4 bis 6 und in Zeile 9 bis 11 jeweils zwei ineinander geschachtelte Code-Regionen definiert, in denen die verbrauchte Energie gemessen werden soll. 
+In Zeile 2 wird zunächst die EMA-Laufzeitumgebung initialisiert. Daraufhin werden in den Zeilen 4 bis 6 und 9 bis 11 jeweils zwei ineinander geschachtelte Code-Regionen definiert, in denen die verbrauchte Energie gemessen werden soll. 
 
 Die Unterscheidung zwischen innerer und äußerer Messung erlaubt es, zu differenzieren, ob die Energie eher im Kalkulationsteil des Programms oder in entsprechenden Preprocessing-Schritten, wie beim Einlesen von Daten, verwendet wird, bzw. wie das entsprechende Verhältnis der Arbeitsbereiche aussieht. Außerdem bietet EMA auch das entsprechende Tooling an, um die Laufzeit gesamter Applikationen zu messen. Diese Funktion ist für dieses Projekt wesentlich interessanter, da die Verwaltung unterschiedlicher Messregionen innerhalb der Slurm-Umgebung sehr aufwendig wäre.
 
-Die erhobenen Daten werden als eine CSV-Datei ausgegeben, in der insgesamt 11 Spalten mit den unterschiedlichen Messparametern und Werten abgelegt werden. Die entsprechende Belegung und Erläuterung hierzu ist der Dokumentation von EMA aus dem Github-Repository zu entnehmen.
+Die erhobenen Daten werden als eine CSV-Datei ausgegeben, in der insgesamt 11 Spalten mit den unterschiedlichen Messparametern und Werten abgelegt werden. Die entsprechende Belegung und Erläuterung hierzu sind der Dokumentation von EMA aus dem Github-Repository zu entnehmen.
 
 EMA ist vollständig in C geschrieben und besitzt in der Grundkonfiguration drei Plugins zur Energiemessung für drei Hardware-Plattformen, die im folgenden erläutert werden.
 \subsubsection{Intel RAPL}
-Intel RAPL ist das zentrale Plugin seitens EMA, wenn es darum geht, Energiemesswerte für die Prozessorlast zu ermitteln. Es basiert auf der namensgebenden Anwendung von Intel und wurde entwickelt, um einerseits Energiemessungen (Energy Reporting) vorzunehmen und andererseits die Energieaufnahme mittels Power Capping zu begrenzen.
+Intel RAPL ist das zentrale Plugin seitens EMA, wenn es darum geht, Energiemesswerte für die Prozessorlast zu ermitteln. Es basiert auf der namensgebenden Anwendung von Intel und wurde entwickelt, um einerseits Energiemessungen (Energy Reporting) vorzunehmen und andererseits die Energieaufnahme mittels Power Capping zu begrenzen \cite{menra2027rapl}.
 
 Das für dieses Projekt interessantere Energy Reporting besteht aus monoton steigenden Zählern, die die Energiewerte repräsentieren. Somit werden nicht die aktuellen Energieverbräuche ausgegeben, sondern müssen mittels zweier Messpunkte für einen Messbereich errechnet werden und bilden somit das Integral des Stromverbrauchs über einen Zeitraum. Dabei unterscheidet Intel spezifische Regionen des Prozessors und bietet die entsprechenden unterschiedlichen Messwerte an. Diese Regionen werden als Domänen bezeichnet und sind wie folgt definiert:
 \begin{itemize}
@@ -134,15 +134,15 @@ Das für dieses Projekt interessantere Energy Reporting besteht aus monoton stei
 \end{itemize}
 Grundsätzlich hängen die angebotenen Domänen stark von der jeweiligen Plattform bzw. der Architektur des Modells ab. In dem folgenden Projekt wird vor allem mit der Package-Domäne gearbeitet, da für den gesamten Energieverbrauch insbesondere der Verbrauch des CPU-Sockels von interesse ist.
 
-Intel RAPL bietet mehrere Möglichkeiten, auf die erhobenen Daten zugreifen zu können. Einerseits lässt sich direkt auf ein MSR-Register mittels Linuxkernel zugreifen. EMA hingegen verwendet den zweiten angebotenen Ansatz direkt aus dem Linuxkernel mittels sysfs unter dem Pfad \texttt{/sys/class/powercap/intel-rapl*/.../energy\_uj} Daten auszulesen. Außerdem gibt es entsprechende Perf-Erweiterungen. Zusammenfassend gilt jedoch, dass alle drei Wege letztendlich identisch sind und lediglich das vom Prozessor selbst befüllte MSR-Register auslesen. Die zeitliche Auflösung von RAPL liegt bei 1 ms.
+Intel RAPL bietet mehrere Möglichkeiten, auf die erhobenen Daten zugreifen zu können. Einerseits lässt sich direkt auf ein MSR-Register mittels Linuxkernel zugreifen. EMA hingegen verwendet den zweiten angebotenen Ansatz, direkt aus dem Linuxkernel mittels sysfs unter dem Pfad \texttt{/sys/class/powercap/intel-rapl*/.../energy\_uj} Daten auszulesen. Außerdem gibt es entsprechende Perf-Erweiterungen. Zusammenfassend gilt jedoch, dass alle drei Wege letztendlich identisch sind und lediglich das vom Prozessor selbst befüllte MSR-Register auslesen. Die zeitliche Auflösung von RAPL liegt bei 1 ms.
 \subsubsection{Nvidia NVML}
-Nvidia NVML verfolgt ein sehr ähnliches Prinzip wie Intel RAPL. Es bringt allerdings weitaus mehr Limitationen mit sich, was sicherlich in einer Linie mit der geschäftlichen Praxis seitens Nvidias steht. Im Unterschied zu RAPL unterscheidet NVML nicht in einzelne Domänen, sondern gibt vielmehr einen erhobenen Messwert für eine gesamte Einheit wie eine Grafik- oder Netzwerkkarte aus. NVML selbst ist eine C-API, die mit dem entsprechenden Treiber des jeweiligen Hardwarebeschleunigers ausgeliefert wird. Dazu erhalten wir in klassischer Nvidia-Tradition eine vorkompilierte Shared-Library und einen Header, mit dem die Anwendungen zur Energieverwaltung implementiert werden sollen.
+Nvidia NVML verfolgt ein sehr ähnliches Prinzip wie Intel RAPL. Es bringt allerdings weitaus mehr Limitationen mit sich, was sicherlich in einer Linie mit der geschäftlichen Praxis seitens Nvidias steht. Im Unterschied zu RAPL unterscheidet NVML nicht in einzelne Domänen, sondern gibt vielmehr einen erhobenen Messwert für eine gesamte Einheit wie eine Grafik- oder Netzwerkkarte aus \cite{wassermann2026nvmlgpm}. NVML selbst ist eine C-API, die mit dem entsprechenden Treiber des jeweiligen Hardwarebeschleunigers ausgeliefert wird. Dazu erhalten wir in klassischer Nvidia-Tradition eine vorkompilierte Shared-Library und einen Header, mit dem die Anwendungen zur Energieverwaltung implementiert werden sollen.
 
 Ein weiterer deutlicher Unterschied zu RAPL ist die zeitliche Auflösung, die mit einem Bereich von mehreren hundert Millisekunden etwa ein hundertstel der Messdichte von RAPL bietet.
 
 Es lassen sich ebenfalls Powerlimits definieren, die das Energieaufnahmeverhalten der Karten zwingen können, sich an ein gesetztes Powerbudget zu halten. Außerdem können auch andere Metriken erhoben werden, wie beispielsweise die Auslastung einzelner Komponenten wie VRAM oder SIMD-Hardwareeinheiten. Sollten innerhalb eines Systems mehrere Grafikkarten verbaut sein, so bietet es sich an, das MIG (Multi-Instance GPU)-System zu verwenden, mithilfe dessen eine sinnvolle Datenaggregation vorgenommen wird.
 \subsection{Slurm PrEp-Plugins}
-Das Clustermanagementsystem Slurm bietet mit der PrEP-Plugin-Schnittstelle eine Möglichkeit, Anwendungen zu schreiben, die speziell zu Beginn und beim Abschluss eines Slurm-Jobs ausgeführt werden. Dabei wird das Programmierkonzept des Interfaces verwendet, bei dem vom Framework ein Funktionsplatzhalter definiert wird, der dann vom entsprechenden Plugin und somit vom Nutzer mit der eigenen Programmlogik überschrieben wird. Die Slurm-Plugin-Laufzeit muss also nicht direkt die entsprechende Erweiterungslogik beinhalten, sondern weiß nur, wo diese Logik liegt und wie sie entsprechend aufgerufen werden kann.
+Das Clustermanagementsystem Slurm bietet mit der PrEP-Plugin-Schnittstelle eine Möglichkeit, Anwendungen zu schreiben, die speziell zu Beginn und beim Abschluss eines Slurm-Jobs ausgeführt werden \cite{slurmprep}. Dabei wird das Programmierkonzept des Interfaces verwendet, bei dem vom Framework ein Funktionsplatzhalter definiert wird, der dann vom entsprechenden Plugin und somit vom Nutzer mit der eigenen Programmlogik überschrieben wird. Die Slurm-Plugin-Laufzeit muss also nicht direkt die entsprechende Erweiterungslogik beinhalten, sondern weiß nur, wo diese Logik liegt und wie sie entsprechend aufgerufen werden kann.
 
 Slurm definiert hier im wesentlichen 4 entscheidende Funktionsvorlagen:
 \begin{itemize}
@@ -263,7 +263,7 @@ Das \texttt{awareness\_daemon} bildet die größte Neuerung von EPSA. Er bedient
 \end{itemize}
 Die Sammlung der Nutzerdaten geschieht über einen Thread, der von der \texttt{awareness\_daemon}-Anwendung gestartet wird. Der \texttt{awareness\_daemon} überprüft zyklisch, ob der entsprechende Thread noch lebt, und startet ihn ggf. mit einem definierten Backoff-Timer neu.
 
-Das Web-Frontend wird mittels eines Flask-Servers bereitgestellt.
+Das Web-Frontend wird mittels eines Flask-Servers bereitgestellt \cite{flaskdoc}.
 
 Der Email-Client verwendet das Python-Pip-Paket namens \texttt{email}, und die entsprechenden Nachrichten zum Energieverbrauch werden wie folgt generiert:
 \begin{minted}[xleftmargin=20pt,linenos]{python}
@@ -280,20 +280,20 @@ def _build_message(self, user):
                 .get('energy_price_per_kwh', 0):.2f}" 
         f"{self.config.get('misc', {}).get('currency', '€')}).\n"
         f"That is roughly equivalent to running"
-        " a {device_name} for {device_time}.\n\n"
+        f" a {device_name} for {device_time}.\n\n"
         f"Your overall energy consumption is "
-        "{user.total_energy_kwh:.4f} kWh"
-        "({user.total_energy_kwh * 
+        f"{user.total_energy_kwh:.4f} kWh"
+        f"({user.total_energy_kwh * 
             self.config.get('misc', {})
                 .get('energy_price_per_kwh', 0):.2f}"
-        " {self.config.get('misc', {}).get('currency', '€')}).\n\n"
+        f" {self.config.get('misc', {}).get('currency', '€')}).\n\n"
         f"Cheers,\n"
         f"{self.config.get('server', {})
             .get('instance_name', 'EPSA Awareness Dashboard')}\n"
     )
     return (user.email, "Your energy consumption this week", body)
 \end{minted}
-Wie in Zeile 2 bis 4 zu sehen ist, wird anhand der vom Nutzer verbrauchten Energie ein Gerät und eine entsprechende Laufzeit mithilfe der \mintinline{python}{Comparator()}-Klasse berechnet. Diese Klasse ist im Kern die Hauptfunktionalität des gesamten Projekts, da mit ihrer Hilfe aus einer Liste von vorher definierten elektrischen Haushaltsgeräten eines zufällig ausgewählt wird. Daraufhin wird der entsprechende Verbrauch zusammen mit dem Gerätenamen als Tupel zurückgegeben und kann in die entsprechenden Interfaces eingebaut werden. Die erwähnte Vergleichsfunktion sieht wie folgt aus:
+Wie in den Zeilen 2 bis 4 zu sehen ist, wird anhand der vom Nutzer verbrauchten Energie ein Gerät und eine entsprechende Laufzeit mithilfe der \mintinline{python}{Comparator()}-Klasse berechnet. Diese Klasse ist im Kern die Hauptfunktionalität des gesamten Projekts, da mit ihrer Hilfe aus einer Liste von zuvor definierten elektrischen Haushaltsgeräten eines zufällig ausgewählt wird. Daraufhin wird der entsprechende Verbrauch zusammen mit dem Gerätenamen als Tupel zurückgegeben und kann in die entsprechenden Interfaces eingebaut werden. Die erwähnte Vergleichsfunktion sieht wie folgt aus:
 \begin{minted}[xleftmargin=20pt,linenos]{python}
 def compare_consumption(self, consumption_in_kwh):
     close_devices = []
@@ -338,9 +338,8 @@ Die Limitation des Projektes ist vor allem die Bindung des Programms an die Date
 Programmspezifisch erlaubt EPSA außerdem, genauso wie EPS, kein Energieprofiling in Code-Bereichen. Dies ist eines der Kern-Features von EMA und wäre natürlich sehr hilfreich bei der Identifikation von Energieintensiven Bereichen in einer verteilten Anwendung im Slurm-Kontext. Eine derartige Implementierung würde jedoch eine Reihe von Features benötigen und wäre mit erheblichem Programmieraufwand verbunden.
 
 Zuletzt sei erwähnt, dass es nicht möglich ist, Energiemessungen von abgebrochenen oder fehlerhaft beendeten Jobs zu erheben. Dies ist der Tatsache geschuldet, dass Energiemessungen erst mit dem Durchlauf der Epilog-Funktionen abgelegt werden, die insbesondere nicht aufgerufen werden, wenn das Programm eines Jobs vorzeitig beendet wird.
-\newpage
 \section{Deployment}
-Da das Projekt EPSA von Anfang an mit dem Ziel, in Produktion eingesetzt zu werden, entwickelt wurde, wurde stets versucht, eine reproduzierbare und wartbare Architektur zu schaffen.
+Da das Projekt EPSA von Anfang an mit dem Ziel, in der Produktion eingesetzt zu werden, entwickelt wurde, wurde stets versucht, eine reproduzierbare und wartbare Architektur zu schaffen.
 
 Zunächst muss auf allen Knoten das EPSA-PrEp-Plugin installiert werden. Dazu kann das Github-Repository geforkt werden und mit dem entsprechenden CMakeFile gebaut werden. Als Ergebnis wird eine Shared-Library erstellt, die dann an den entsprechend von Slurm konfigurierten Plugin-Pfaden hinterlegt werden muss. Außerdem benötigt jeder Knoten die notwendigen Postgres-Bibliotheken, die vorzugshalber mithilfe des jeweiligen Betriebssystem-Paketmanagers installiert werden sollten. Dabei ist auf die korrekte Erstellung des Credential-Strings der Postgres-Datenbank zu achten, da diese von den jeweiligen Plugin-Instanzen sowie dem \texttt{awareness\_daemon} benötigt werden.
 
@@ -354,15 +353,22 @@ Um den \texttt{awareness\_daemon} zu installieren, sollte folgendes ausgeführt 
 cd awareness_daemon
 uv tool install .
 \end{minted}
-Dies installiert das \texttt{awareness\_daemon} an der korrekten, von UV voreingestellten Stelle. Im Pfad des \texttt{awareness\_daemon} liegen außerdem zwei Konfigurationsdateien:
+Dies installiert das \texttt{awareness\_daemon} an der korrekten, von UV voreingestellten Stelle \cite{uvdoc}. \newpage Im Pfad des \texttt{awareness\_daemon} liegen außerdem zwei Konfigurationsdateien:
 \begin{itemize}
-    \item \texttt{awareness-daemon-config.yaml} beinhaltet allgemeine Serverkonfigurationen wie Instanz-Name, Server-Adresse und Server-Port. Außerdem kann der Energiepreis sowie die Landeswährung angepasst werden.
+    \item \texttt{awareness-daemon-config.yaml} beinhaltet allgemeine Serverkonfigurationen wie Ins-tanz-Name, Server-Adresse und Server-Port. Außerdem können der Energiepreis sowie die Landeswährung angepasst werden.
     \item \texttt{consumers.yaml} beinhaltet eine Liste von Energieverbrauchern mit deren Namen und dem entsprechenden Wattverbrauch.
 \end{itemize}
 Diese Konfigurationen sollten vor inbetriebnahme entsprechend angepasst werden, sind allerdings mit Default-Werten belegt, die der Testumgebung des Clusters an der Universität Potsdam entsprechen.
-\newpage
-\section{Fazit}
+\section{Fazit und Ausblick}
+Im Rahmen der Projektarbeit wurde das Slurm-PrEp-Plugin EPS erweitert. Ziel war es, ein menschliches Verständnis von Energieverbrauch zu schaffen, indem die gemessenen Werte in den Verbrauch eines vergleichbaren elektrischen Haushaltsgeräts umgerechnet werden. Die so ermittelten Werte können daraufhin entweder innerhalb des Webinterfaces eingesehen oder per Email an die Nutzer*innen des Clusters versendet werden. Diese Funktionalität wurde im sogenannten \texttt{awareness\_daemon} implementiert. Die tatsächliche Wirksamkeit dieser Änderungen auf eine Senkung des allgemeinen Energieverbrauchs konnte innerhalb dieser Arbeit nicht untersucht werden. Dazu bedarf es eines längeren Analysezeitraums, in dem explizit mit und ohne einer Awareness-Struktur der Energieverbrauch in einem definierten Zeitfenster gemessen wird.
 
+Das Projekt wird auch mit Abgabe dieses Projektes fortgeführt, und es soll unter anderem auf den Slurm-Clustern der Universität Potsdam sowie auf dem Cluster der Universität Cambridge voraussichtlich in Betrieb genommen werden. Als zentrales Repository verbleibt
+\begin{itemize}
+    \item \href{https://github.com/gespel/EPSA}{https://github.com/gespel/EPSA} 
+\end{itemize}
+und alle weiteren Features können als Pull-Request oder Issue angefragt werden.
+
+Außerdem soll in kommender Zeit, das Projekt auf DSGVO-Konformität geaudited werden und zusätzlich noch weitere Dokumentation erstellt werden.
 \newpage
 \printbibliography
 
