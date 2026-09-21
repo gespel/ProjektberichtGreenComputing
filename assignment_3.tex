@@ -42,10 +42,10 @@
 
 \title{	
 \includegraphics[width=0.6\linewidth]{img/Mathnatlogo.png}\\[1cm]
-\normalfont \normalsize 
-\textsc{Green Compting} \\ 
+\normalfont \normalsize
+\textsc{Green Computing} \\
 \textsc{Lehrstuhl für Operating Systems and Distributed Systems} \\ [25pt]
-\horrule{0.5pt} \\[0.4cm] 
+\horrule{0.5pt} \\[0.4cm]
 \huge Projektbericht - EPSA \\ EMA Plugin for Slurm \textit{(but Aware!)} \\ % The assignment title
 \horrule{0.5pt} \\[1cm]
 \author{Sten Heimbrodt} % Your name
@@ -64,9 +64,9 @@
 \newpage
 \section{Einleitung}
 Hochleistungsrechencluster sind ein fundamentaler Bestandteil der modernen Forschungslandschaft, insbesondere in den Computerwissenschaften \cite{hintemann2025rechenzentren}. Folglich besitzt jede größere Forschungsinstitution meist eigene Rechencluster, auf denen ein breites Feld an Anwendungen
-ausgeführt wird. Da in der Regel eine Menge von Personen sich etwaige Computerverbünde teilen, ist es notwendig, eine Cluster Management Software aufzusetzen. Diese übernimmt die Verwaltung der Ressourcen des Clusters. Dabei wird meist Slurm eingesetzt, was die Grundlage für die hier vorliegende Projektarbeit bieten soll. Es wurde eine Erweiterung des EPS-PrEp-Plugins der Slurm-API vorgenommen, die einen tieferen Einblick in den Energieverbrauch einzelner Slurm-Jobs ermöglicht. Das Ergebnis der Arbeit ist ein Programm namens \texttt{awareness\_daemon} sowie eine Erweiterung des ursprünglichen EPS-Plugins um weitere Ausgaben und eine Anpassung der entsprechenden Datenbank. 
+ausgeführt wird. Da in der Regel eine Menge von Personen sich etwaige Computerverbünde teilen, ist es notwendig, eine Cluster-Management-Software aufzusetzen. Diese übernimmt die Verwaltung der Ressourcen des Clusters. Dabei wird meist Slurm eingesetzt, was die Grundlage für die hier vorliegende Projektarbeit bieten soll. Es wurde eine Erweiterung des EPS-PrEp-Plugins der Slurm-API vorgenommen, die einen tieferen Einblick in den Energieverbrauch einzelner Slurm-Jobs ermöglicht. Das Ergebnis der Arbeit ist ein Programm namens \texttt{awareness\_daemon} sowie eine Erweiterung des ursprünglichen EPS-Plugins um weitere Ausgaben und eine Anpassung der entsprechenden Datenbank. 
 
-Die Lizenzierung wurde aus dem Ursprungs-Github-Repository übernommen und ist somit unter der MIT License lizenziert \cite{epsa}. Es wurde ein Projekt-Logo erstellt (siehe Abbildung 2.1). Das neue Projekt ist nun im Github-Repository 
+Die Lizenzierung wurde aus dem Ursprungs-GitHub-Repository übernommen und ist somit unter der MIT License lizenziert \cite{epsa}. Es wurde ein Projekt-Logo erstellt (siehe Abbildung 2.1). Das neue Projekt ist nun im GitHub-Repository
 \begin{itemize}
     \item \href{https://github.com/gespel/EPSA}{https://github.com/gespel/EPSA} 
 \end{itemize}
@@ -77,7 +77,7 @@ Der fortschreitende Klimawandel verlangt es heute mehr denn je zuvor, den Energi
 
 Menschen neigen dazu, den Alltag derart zu abstrahieren, dass ein Gefühl für den eigenen Energieverbrauch meist verloren geht, und es somit zunehmend schwerer wird, eine Akzeptanz für die benötigten Energiesparmaßnahmen zu schaffen. Auch die Nutzung von extrem energieintensiven Hochleistungsrechnern muss dementsprechend sparsam behandelt werden, da ein Slurm-Job, der alle Ressourcen eines Clusters verwendet, Tausende Watt an Leistung nutzen kann und meist eine relativ lange Laufzeit besitzt \cite{inbook}. Dementsprechend ist derartige Arbeit einer der Hauptenergieverbraucher, pro Kopf gerechnet. 
 
-Technisch wird ein Job auf solch einem Cluster mittels eines Terminals auf dem Kopfknoten gestartet, bei dem explizit angegeben werden muss, welche Ressourcen verwendet werden sollen. Die Bedienung ist allerdings relativ einfach, und besonders das hochskalieren auf Hunderte, wenn nicht sogar Tausende, CPU-Kerne ist letztendlich nur eine Zahl in einem Shell-Skript \cite{slurmdoc}. Hier setzt nun das Prinzip der Energy-Awareness an, das allgemein die Zielsetzung hat, ein abstraktes menschliches Gefühl für Energieverbrauch herzustellen, damit eine Grundsatz-Moral seitens der Nutzer*innen entstehen kann. Dazu gibt es unterschiedliche Ansätze. 
+Technisch wird ein Job auf solch einem Cluster mittels eines Terminals auf dem Kopfknoten gestartet, bei dem explizit angegeben werden muss, welche Ressourcen verwendet werden sollen. Die Bedienung ist allerdings relativ einfach, und besonders das Hochskalieren auf Hunderte, wenn nicht sogar Tausende, CPU-Kerne ist letztendlich nur eine Zahl in einem Shell-Skript \cite{slurmdoc}. Hier setzt nun das Prinzip der Energy-Awareness an, das allgemein die Zielsetzung hat, ein abstraktes menschliches Gefühl für Energieverbrauch herzustellen, damit eine Grundsatz-Moral seitens der Nutzer*innen entstehen kann. Dazu gibt es unterschiedliche Ansätze. 
 \begin{figure}[htbp]
   \centering
   \includesvg{img/epsa-icon}
@@ -87,9 +87,9 @@ Der in diesem Projekt verwendete Ansatz nutzt ein Energiemessungs-Framework, um 
 
 \newpage
 \section{Grundlagen}
-Für die Slurm-Erweiterung EPSA werden eine Reihe von technischen Hilfsmitteln genutzt. Einerseits wird ein Framework benötigt, um die verbrauchte Energie auf den entsprechenden Rechenknoten zu messen, und andererseits muss es eine Schnittstelle seitens der Clusterverwaltungssoftware geben, damit laufende Jobs mit den Aufrufern assoziiert werden können. Außerdem muss eine Messungsumgebung gestartet werden, die zeitlich an der Ausführung des Jobs gebunden ist und korrekt beendet werden muss. Im folgenden werden diese Hilfsmittel vorgestellt und im Detail erläutert.
+Für die Slurm-Erweiterung EPSA werden eine Reihe von technischen Hilfsmitteln genutzt. Einerseits wird ein Framework benötigt, um die verbrauchte Energie auf den entsprechenden Rechenknoten zu messen, und andererseits muss es eine Schnittstelle seitens der Clusterverwaltungssoftware geben, damit laufende Jobs mit den Aufrufern assoziiert werden können. Außerdem muss eine Messungsumgebung gestartet werden, die zeitlich an der Ausführung des Jobs gebunden ist und korrekt beendet werden muss. Im Folgenden werden diese Hilfsmittel vorgestellt und im Detail erläutert.
 \subsection{EMA}
-EMA ist ein von der PERFACCT GmbH entwickeltes Framework zur Energiemessung von Anwendungen aus dem Umfeld des wissenschaftlichen Rechnens \cite{perfacct_naaice}. Es ist modular aufgebaut und erlaubt somit die Integration verschiedener Hardwarearchitekturen mittels eines Plugin Systems. Dies ist vor allem notwendig, weil sich Rechencluster meist aus heterogener Hardware zusammensetzen und die Ausgabe des Energieverbrauchs, bis auf einige Ausnahmen wie IPMI, hardwarespezifisch ist. Es ist somit wünschenswert, eine programmatische Abstraktion zu schaffen, damit Energiemessungen zentral und vor allem normalisiert aggregiert und ausgewertet werden können.
+EMA ist ein von der PERFACCT GmbH entwickeltes Framework zur Energiemessung von Anwendungen aus dem Umfeld des wissenschaftlichen Rechnens \cite{perfacct_naaice}. Es ist modular aufgebaut und erlaubt somit die Integration verschiedener Hardwarearchitekturen mittels eines Plugin-Systems. Dies ist vor allem notwendig, weil sich Rechencluster meist aus heterogener Hardware zusammensetzen und die Ausgabe des Energieverbrauchs, bis auf einige Ausnahmen wie IPMI, hardwarespezifisch ist. Es ist somit wünschenswert, eine programmatische Abstraktion zu schaffen, damit Energiemessungen zentral und vor allem normalisiert aggregiert und ausgewertet werden können.
 
 Es gibt unterschiedliche Möglichkeiten, wie EMA die verbrauchte Energie eines Programms messen kann. Zunächst gibt es die regionsbasierte Energiemessung. Dabei können mittels Präprozessor-Makros Regionen definiert werden, in denen speziell Energiemessungen stattfinden sollen. Im folgenden Codebeispiel ist eine solche Energiemessung implementiert:
 \begin{minted}[xleftmargin=20pt,linenos]{c}
@@ -118,9 +118,9 @@ In Zeile 2 wird zunächst die EMA-Laufzeitumgebung initialisiert. Daraufhin werd
 
 Die Unterscheidung zwischen innerer und äußerer Messung erlaubt es, zu differenzieren, ob die Energie eher im Kalkulationsteil des Programms oder in entsprechenden Preprocessing-Schritten, wie beim Einlesen von Daten, verwendet wird, bzw. wie das entsprechende Verhältnis der Arbeitsbereiche aussieht. Außerdem bietet EMA auch das entsprechende Tooling an, um die Laufzeit gesamter Applikationen zu messen. Diese Funktion ist für dieses Projekt wesentlich interessanter, da die Verwaltung unterschiedlicher Messregionen innerhalb der Slurm-Umgebung sehr aufwendig wäre.
 
-Die erhobenen Daten werden als eine CSV-Datei ausgegeben, in der insgesamt 11 Spalten mit den unterschiedlichen Messparametern und Werten abgelegt werden. Die entsprechende Belegung und Erläuterung hierzu sind der Dokumentation von EMA aus dem Github-Repository zu entnehmen.
+Die erhobenen Daten werden als eine CSV-Datei ausgegeben, in der insgesamt 11 Spalten mit den unterschiedlichen Messparametern und Werten abgelegt werden. Die entsprechende Belegung und Erläuterung hierzu sind der Dokumentation von EMA aus dem GitHub-Repository zu entnehmen.
 
-EMA ist vollständig in C geschrieben und besitzt in der Grundkonfiguration drei Plugins zur Energiemessung für drei Hardware-Plattformen, die im folgenden erläutert werden.
+EMA ist vollständig in C geschrieben und besitzt in der Grundkonfiguration drei Plugins zur Energiemessung für drei Hardware-Plattformen, die im Folgenden erläutert werden.
 \subsubsection{Intel RAPL}
 Intel RAPL ist das zentrale Plugin seitens EMA, wenn es darum geht, Energiemesswerte für die Prozessorlast zu ermitteln. Es basiert auf der namensgebenden Anwendung von Intel und wurde entwickelt, um einerseits Energiemessungen (Energy Reporting) vorzunehmen und andererseits die Energieaufnahme mittels Power Capping zu begrenzen \cite{menra2027rapl}.
 
@@ -132,19 +132,19 @@ Das für dieses Projekt interessantere Energy Reporting besteht aus monoton stei
     \item DRAM gibt an, welche Energie vom Arbeitsspeicher verwendet wurde, der mit dem entsprechenden Sockel der CPU verbunden ist.
     \item PSys misst die gesamte System-on-Chip Architektur und ist vor allem bei mobilen Prozessoren im Einsatz.
 \end{itemize}
-Grundsätzlich hängen die angebotenen Domänen stark von der jeweiligen Plattform bzw. der Architektur des Modells ab. In dem folgenden Projekt wird vor allem mit der Package-Domäne gearbeitet, da für den gesamten Energieverbrauch insbesondere der Verbrauch des CPU-Sockels von interesse ist.
+Grundsätzlich hängen die angebotenen Domänen stark von der jeweiligen Plattform bzw. der Architektur des Modells ab. In dem folgenden Projekt wird vor allem mit der Package-Domäne gearbeitet, da für den gesamten Energieverbrauch insbesondere der Verbrauch des CPU-Sockels von Interesse ist.
 
-Intel RAPL bietet mehrere Möglichkeiten, auf die erhobenen Daten zugreifen zu können. Einerseits lässt sich direkt auf ein MSR-Register mittels Linuxkernel zugreifen. EMA hingegen verwendet den zweiten angebotenen Ansatz, direkt aus dem Linuxkernel mittels sysfs unter dem Pfad \texttt{/sys/class/powercap/intel-rapl*/.../energy\_uj} Daten auszulesen. Außerdem gibt es entsprechende Perf-Erweiterungen. Zusammenfassend gilt jedoch, dass alle drei Wege letztendlich identisch sind und lediglich das vom Prozessor selbst befüllte MSR-Register auslesen. Die zeitliche Auflösung von RAPL liegt bei 1 ms.
+Intel RAPL bietet mehrere Möglichkeiten, auf die erhobenen Daten zugreifen zu können. Einerseits lässt sich direkt auf ein MSR-Register mittels Linux-Kernel zugreifen. EMA hingegen verwendet den zweiten angebotenen Ansatz, direkt aus dem Linux-Kernel mittels sysfs unter dem Pfad \texttt{/sys/class/powercap/intel-rapl*/.../energy\_uj} Daten auszulesen. Außerdem gibt es entsprechende Perf-Erweiterungen. Zusammenfassend gilt jedoch, dass alle drei Wege letztendlich identisch sind und lediglich das vom Prozessor selbst befüllte MSR-Register auslesen. Die zeitliche Auflösung von RAPL liegt bei 1 ms.
 \subsubsection{Nvidia NVML}
 Nvidia NVML verfolgt ein sehr ähnliches Prinzip wie Intel RAPL. Es bringt allerdings weitaus mehr Limitationen mit sich, was sicherlich in einer Linie mit der geschäftlichen Praxis seitens Nvidias steht. Im Unterschied zu RAPL unterscheidet NVML nicht in einzelne Domänen, sondern gibt vielmehr einen erhobenen Messwert für eine gesamte Einheit wie eine Grafik- oder Netzwerkkarte aus \cite{wassermann2026nvmlgpm}. NVML selbst ist eine C-API, die mit dem entsprechenden Treiber des jeweiligen Hardwarebeschleunigers ausgeliefert wird. Dazu erhalten wir in klassischer Nvidia-Tradition eine vorkompilierte Shared-Library und einen Header, mit dem die Anwendungen zur Energieverwaltung implementiert werden sollen.
 
-Ein weiterer deutlicher Unterschied zu RAPL ist die zeitliche Auflösung, die mit einem Bereich von mehreren hundert Millisekunden etwa ein hundertstel der Messdichte von RAPL bietet.
+Ein weiterer deutlicher Unterschied zu RAPL ist die zeitliche Auflösung, die mit einem Bereich von mehreren hundert Millisekunden etwa ein Hundertstel der Messdichte von RAPL bietet.
 
 Es lassen sich ebenfalls Powerlimits definieren, die das Energieaufnahmeverhalten der Karten zwingen können, sich an ein gesetztes Powerbudget zu halten. Außerdem können auch andere Metriken erhoben werden, wie beispielsweise die Auslastung einzelner Komponenten wie VRAM oder SIMD-Hardwareeinheiten. Sollten innerhalb eines Systems mehrere Grafikkarten verbaut sein, so bietet es sich an, das MIG (Multi-Instance GPU)-System zu verwenden, mithilfe dessen eine sinnvolle Datenaggregation vorgenommen wird.
 \subsection{Slurm PrEp-Plugins}
 Das Clustermanagementsystem Slurm bietet mit der PrEP-Plugin-Schnittstelle eine Möglichkeit, Anwendungen zu schreiben, die speziell zu Beginn und beim Abschluss eines Slurm-Jobs ausgeführt werden \cite{slurmprep}. Dabei wird das Programmierkonzept des Interfaces verwendet, bei dem vom Framework ein Funktionsplatzhalter definiert wird, der dann vom entsprechenden Plugin und somit vom Nutzer mit der eigenen Programmlogik überschrieben wird. Die Slurm-Plugin-Laufzeit muss also nicht direkt die entsprechende Erweiterungslogik beinhalten, sondern weiß nur, wo diese Logik liegt und wie sie entsprechend aufgerufen werden kann.
 
-Slurm definiert hier im wesentlichen 4 entscheidende Funktionsvorlagen:
+Slurm definiert hier im Wesentlichen 4 entscheidende Funktionsvorlagen:
 \begin{itemize}
     \item \mintinline{c}{int prep_p_prolog(job_env_t *job_env, slurm_cred_t *cred)} ist die Funktion, die von allen beteiligten Slurm-Knoten vor dem Start eines Jobs ausgeführt wird.
     \item \mintinline{c}{int prep_p_epilog(job_env_t *job_env, slurm_cred_t *cred)} wird am Ende eines Jobs auf allen Slurm-Knoten ausgeführt.
@@ -155,7 +155,7 @@ Diese 4 Funktionen werden, wie im folgenden Kapitel beschrieben, verwendet, um d
 
 Bevor ein Slurm-PrEp-Plugin verwendet werden kann, müssen drei wesentliche Datenfelder gesetzt werden:
 \begin{itemize}
-    \item \mintinline{c}{const char plugin_name[]="full text name"} definiert den vollständigen Plugin Namen.
+    \item \mintinline{c}{const char plugin_name[]="full text name"} definiert den vollständigen Plugin-Namen.
     \item \mintinline{c}{const char plugin_type[]="major/minor"} definiert den Plugin-Typ. Major muss bei PrEp-Plugins immer \texttt{prep} sein und minor kann ein Kürzel des Plugin-Namens sein.
     \item \mintinline{c}{const uint32_t plugin_version} definiert die aktuelle Plugin-Version und erlaubt es Slurm, neuere Versionen zu erkennen und ein explizites Aktualisieren zu implementieren.
 \end{itemize}
@@ -164,7 +164,7 @@ Abschließend kann der Plugin-Quelltext gebaut werden. Also sollte der zentrale 
     \item \mintinline{c}{#include <src/interfaces/prep.h>}
 \end{itemize} verwendet werden, da dieser Header die entsprechenden Funktionsdeklarationen seitens Slurm vornimmt.
 \subsection{EPS}
-EPS ist ein Slurm-PrEp-Plugin der PERFACCT GmbH, welches die bis hierher erläuterten Mechanismen und Frameworks vereint. Das Plugin erlaubt eine verteilte Energiemessung mittels EMA. EPS verwendet die Energiemessung mittels Intels RAPL und der sysfs-Schnittstelle. Außerdem gibt es eine GPU-Integration, die zusätzlich auch die NVML-API verwendet und den Energieverbrauch der Grafikkarten messen kann. Zu dem EPS Projekt gehören eine Reihe von Github-Repositories, wobei zwei von besonderer Bedeutung sind:
+EPS ist ein Slurm-PrEp-Plugin der PERFACCT GmbH, welches die bis hierher erläuterten Mechanismen und Frameworks vereint. Das Plugin erlaubt eine verteilte Energiemessung mittels EMA. EPS verwendet die Energiemessung mittels Intels RAPL und der sysfs-Schnittstelle. Außerdem gibt es eine GPU-Integration, die zusätzlich auch die NVML-API verwendet und den Energieverbrauch der Grafikkarten messen kann. Zu dem EPS-Projekt gehören eine Reihe von GitHub-Repositories, wobei zwei von besonderer Bedeutung sind:
 \begin{itemize}
     \item \href{https://github.com/PERFACCT/EPS}{https://github.com/PERFACCT/EPS} ist das Hauptrepository, in dem die Slurm-Plugin-Implementierung liegt.
     \item \href{https://github.com/PERFACCT/EPS-DB}{https://github.com/PERFACCT/EPS-DB} beinhaltet das Datenbankschema der Postgres-Datenbank auf dem Slurm-Control-Knoten, in dem die Datenaggregation der Energiemessung vorgenommen wird.
@@ -181,9 +181,9 @@ Das im Rahmen dieses Projektes entwickelte Plugin EPSA kann als Weiterentwicklun
 \end{figure}
 Die Erweiterung des EPS-Slurm-PrEp-Plugins namens EPSA wurde so konzipiert, dass am grundlegenden Gerüst der EPS-Erweiterung grundsätzlich nur minimale Änderungen vorgenommen werden, die einzig und allein die neue Funktionalität einführen. Dinge wie Code-Qualität und weitere Refactoring-Schritte wurden nicht durchgeführt. 
 
-In Abbildung 4.1 ist die allgemeine Struktur von EPSA dargestellt. Dabei ist die Unterscheidung zwischen dem eigentlichen PrEp-Plugin und dem Anknüpfenden \texttt{awareness\_daemon} wichtig. Das EPSA-Plugin wird weiterhin in der Slurm-Umgebung geladen und ausgeführt und hat die Funktion, die Energiemessdaten von EMA abzuholen. Daraufhin werden mittels direkter Datenbankzugriffe die jeweiligen Datenbankeinträge vorgenommen. Dabei wurde die Slurm-Semantik größtenteils übernommen und zwischen Job und Execution unterschieden. Neu ist allerdings, dass der Unix-User, der den Job startet, ebenfalls vom EPSA-Plugin erfasst wird und EPSA überprüft, ob es einen entsprechenden User bereits in der Datenbank gibt. Ist dies nicht der Fall, so wird ein neuer Eintrag mit dem User erstellt und eine entsprechende Email-Adresse generiert. Diese wird später für das Versenden der Awareness-Nachrichten benötigt. Zusätzlich wurde der Epilog auf dem Slurm-Kopfknoten derart angepasst, dass die erhobenen Energiedaten neben den normalen Slurm-Log-Dateien als separate Log-Datei abgelegt werden. Der Nutzer kann somit nach Ausführung des Jobs direkt einsehen, wie viel Energie verbraucht wurde.
+In Abbildung 4.1 ist die allgemeine Struktur von EPSA dargestellt. Dabei ist die Unterscheidung zwischen dem eigentlichen PrEp-Plugin und dem anknüpfenden \texttt{awareness\_daemon} wichtig. Das EPSA-Plugin wird weiterhin in der Slurm-Umgebung geladen und ausgeführt und hat die Funktion, die Energiemessdaten von EMA abzuholen. Daraufhin werden mittels direkter Datenbankzugriffe die jeweiligen Datenbankeinträge vorgenommen. Dabei wurde die Slurm-Semantik größtenteils übernommen und zwischen Job und Execution unterschieden. Neu ist allerdings, dass der Unix-User, der den Job startet, ebenfalls vom EPSA-Plugin erfasst wird und EPSA überprüft, ob es einen entsprechenden User bereits in der Datenbank gibt. Ist dies nicht der Fall, so wird ein neuer Eintrag mit dem User erstellt und eine entsprechende E-Mail-Adresse generiert. Diese wird später für das Versenden der Awareness-Nachrichten benötigt. Zusätzlich wurde der Epilog auf dem Slurm-Kopfknoten derart angepasst, dass die erhobenen Energiedaten neben den normalen Slurm-Log-Dateien als separate Log-Datei abgelegt werden. Der Nutzer kann somit nach Ausführung des Jobs direkt einsehen, wie viel Energie verbraucht wurde.
 
-Auf der rechten Seite der Abbildung 4.1 ist der \texttt{awareness\_daemon} zu sehen, welcher mithilfe von YAML-Dateien konfiguriert werden kann. Der Daemon wurde mithilfe von UV implementiert und erlaubt somit eine weitestgehend plattformagnostische Ausführung. Ist der Daemon gestartet, so wird ein Thread gestartet, der periodisch die Energiemessdaten der in der Datenbank eingetragenen Nutzer sammelt und dann einen Bericht an die entsprechenden Nutzer versendet. Dazu werden Emails versendet. Die Email-Adressen der jeweiligen Nutzer werden ebenfalls in der User-Tabelle in der Postgres-Datenbank festgehalten. Per Standardkonfiguration wird eine Email-Adresse aus Unix-User-Name + '@uni-potsdam.de' erstellt. Außerdem wird ein Frontend gestartet, das die Energiemessdaten benutzerspezifisch visualisiert (siehe Abbildung 4.2).
+Auf der rechten Seite der Abbildung 4.1 ist der \texttt{awareness\_daemon} zu sehen, welcher mithilfe von YAML-Dateien konfiguriert werden kann. Der Daemon wurde mithilfe von UV implementiert und erlaubt somit eine weitestgehend plattformagnostische Ausführung. Ist der Daemon gestartet, so wird ein Thread gestartet, der periodisch die Energiemessdaten der in der Datenbank eingetragenen Nutzer sammelt und dann einen Bericht an die entsprechenden Nutzer versendet. Dazu werden E-Mails versendet. Die E-Mail-Adressen der jeweiligen Nutzer werden ebenfalls in der User-Tabelle in der Postgres-Datenbank festgehalten. Per Standardkonfiguration wird eine E-Mail-Adresse aus Unix-User-Name + '@uni-potsdam.de' erstellt. Außerdem wird ein Frontend gestartet, das die Energiemessdaten benutzerspezifisch visualisiert (siehe Abbildung 4.2).
 \begin{figure}
     \centering
     \includegraphics[width=1\linewidth]{img/Screenshot 2026-09-20 at 11-18-11 Dashboard – University of Potsdam Energy Awareness Daemon.png}
@@ -193,7 +193,7 @@ Auf der rechten Seite der Abbildung 4.1 ist der \texttt{awareness\_daemon} zu se
 
 Der \texttt{awareness\_daemon} führt nur lesende Zugriffe auf die Datenbank aus. Somit könnte ein spezieller Postgres-User mit nur den entsprechenden Berechtigungen erstellt werden. Aktuell sucht der \texttt{awareness\_daemon} im Slurm-Log nach dem entsprechenden Credential-String, um auf die Datenbank zugreifen zu können.
 \section{Implementierung}
-Im folgenden Kapitel werden die Hauptänderungen der EPSA-Erweiterung sowie zentrale Bestandteile des \texttt{awareness\_daemon} vorgestellt.
+Im Folgenden werden die Hauptänderungen der EPSA-Erweiterung sowie zentrale Bestandteile des \texttt{awareness\_daemon} vorgestellt.
 \subsection{Slurm Plugin}
 Zu Beginn des Projektes wurden zunächst einige Änderungen vorgenommen, damit EPSA überhaupt mittels der neuen Slurm-Bibliotheken gebaut werden kann. Das EPS-Plugin, auf dem EPSA basiert, wird seit geraumer Zeit nicht mehr weiterentwickelt und hat somit auch nicht die Anpassungen modernerer Slurm-Versionen, vor allem an Datenstrukturen, vorgenommen. Daraufhin wurden die erste Funktionalität des Energiemessungs-Threads sowie die Ausgabe an den Nutzer mittels File-Writes implementiert, die im Folgenden vorgestellt werden (Code gekürzt):
 \begin{minted}[xleftmargin=20pt,linenos]{c}
@@ -228,7 +228,7 @@ static void* epilog_energy_thread(void* arg) {
     PQfinish(db_connection);
 }
 \end{minted}
-Der hier gezeigte Energy-Thread wird im Epilog des Slurm-Kopfknotens gestartet und wartet so lange, bis die Entsprechenden Einträge in der Datenbank vorgenommen wurden (siehe Zeile 8 bis 17). Hintergrund ist, dass EMA selbst einen Thread zum Eintragen der Werte verwendet. Die PrEp-API ist blockierend, weswegen solche I/O-Aufgaben grundsätzlich asynchron durchgeführt werden sollten.
+Der hier gezeigte Energy-Thread wird im Epilog des Slurm-Kopfknotens gestartet und wartet so lange, bis die entsprechenden Einträge in der Datenbank vorgenommen wurden (siehe Zeile 8 bis 17). Hintergrund ist, dass EMA selbst einen Thread zum Eintragen der Werte verwendet. Die PrEp-API ist blockierend, weswegen solche I/O-Aufgaben grundsätzlich asynchron durchgeführt werden sollten.
 
 Die im vorherigen Kapitel erwähnte Anpassung der Datenbankstruktur bedarf einer neuen Funktion zum Einfügen eines Nutzers in die users-Tabelle. Dazu wurde eine entsprechende Änderung in \texttt{eps\_db.c} vorgenommen (Code gekürzt):
 \begin{minted}[xleftmargin=20pt,linenos]{c}
@@ -248,24 +248,24 @@ int insert_user_data(
     return check_query_result(res, connection);
 }
 \end{minted}
-Wie in den Zeilen 2 bis 4 zu sehen ist, wird die Nutzer-E-Mail aktuell hart mit dem Suffix der Universität Potsdam gesetzt. Sollte EPSA in einem anderen Kontext eingesetzt werden, ist an dieser Stelle natürlich eine Anpassung vorzunehmen. Gegebenenfalls ist es hier auch sinnvoll, einen eigenen Generierungs-Algorithmus zu implementieren, da nicht alle Email-Systeme die gleiche Semantik wie an der Universität Potsdam verwenden.
+Wie in den Zeilen 2 bis 4 zu sehen ist, wird die Nutzer-E-Mail aktuell hart mit dem Suffix der Universität Potsdam gesetzt. Sollte EPSA in einem anderen Kontext eingesetzt werden, ist an dieser Stelle natürlich eine Anpassung vorzunehmen. Gegebenenfalls ist es hier auch sinnvoll, einen eigenen Generierungs-Algorithmus zu implementieren, da nicht alle E-Mail-Systeme die gleiche Semantik wie an der Universität Potsdam verwenden.
 
-Weitere zentrale Änderungen Umfassen die Anpassung der Datenbank-Funktionen zum Eintragen der Messdaten. Diese wurden um die \texttt{userid} ergänzt, um ein relationales Datenbankschema zu erstellen.
-Kleinere Änderungen können im Github-Repository mittels eines \texttt{git diff} eingesehen werden.
+Weitere zentrale Änderungen umfassen die Anpassung der Datenbank-Funktionen zum Eintragen der Messdaten. Diese wurden um die \texttt{userid} ergänzt, um ein relationales Datenbankschema zu erstellen.
+Kleinere Änderungen können im GitHub-Repository mittels eines \texttt{git diff} eingesehen werden.
 \newpage
 \subsection{awareness\_daemon}
-Das \texttt{awareness\_daemon} bildet die größte Neuerung von EPSA. Er bedient im wesentlichen 4 zentrale Funktionen:
+Das \texttt{awareness\_daemon} bildet die größte Neuerung von EPSA. Er bedient im Wesentlichen 4 zentrale Funktionen:
 \begin{itemize}
     \item \textbf{Sammlung der Nutzerdaten} in einem vorher definierten zeitlichen Intervall.
-    \item \textbf{Weboberfläche} zum einfachen einsehen des Energieverbrauchs im Vergleich zu anderen Nutzer*innen.
-    \item \textbf{Email-Client} zum versenden der monatlichen Energieberichte an die Nutzer*innen.
-    \item \textbf{Comparator} zum erstellen eines sinnvollen Energieverbrauchsvergleichs.
+    \item \textbf{Weboberfläche} zum einfachen Einsehen des Energieverbrauchs im Vergleich zu anderen Nutzer*innen.
+    \item \textbf{E-Mail-Client} zum Versenden der monatlichen Energieberichte an die Nutzer*innen.
+    \item \textbf{Comparator} zum Erstellen eines sinnvollen Energieverbrauchsvergleichs.
 \end{itemize}
 Die Sammlung der Nutzerdaten geschieht über einen Thread, der von der \texttt{awareness\_daemon}-Anwendung gestartet wird. Der \texttt{awareness\_daemon} überprüft zyklisch, ob der entsprechende Thread noch lebt, und startet ihn ggf. mit einem definierten Backoff-Timer neu.
 
 Das Web-Frontend wird mittels eines Flask-Servers bereitgestellt \cite{flaskdoc}.
 
-Der Email-Client verwendet das Python-Pip-Paket namens \texttt{email}, und die entsprechenden Nachrichten zum Energieverbrauch werden wie folgt generiert:
+Der E-Mail-Client verwendet das Python-Pip-Paket namens \texttt{email}, und die entsprechenden Nachrichten zum Energieverbrauch werden wie folgt generiert:
 \begin{minted}[xleftmargin=20pt,linenos]{python}
 def _build_message(self, user):
     device_name, device_time = self.comparator.compare_consumption(
@@ -319,7 +319,7 @@ def compare_consumption(self, consumption_in_kwh):
     return compare_device[0], 
         self.sensible_time_output(compare_device[1])
 \end{minted}
-Als Eingabe übergibt man den direkten Verbrauch in kWh. Dazu wird eine Liste mit den nächstgelegenen Verbrauchern erstellt und dann zufällig aus dieser ausgewählt. Damit die Textausgabe nicht nur die Sekunden direkt, sondern eine sinnvollere Ausgabe wie '1 hour 4 minutes und 32 seconds' ausgibt, wurde zusätzlich eine Klassenmethode hinzugefügt.
+Als Eingabe übergibt man den direkten Verbrauch in kWh. Dazu wird eine Liste mit den nächstgelegenen Verbrauchern erstellt und dann zufällig aus dieser ausgewählt. Damit die Textausgabe nicht nur die Sekunden direkt, sondern eine sinnvollere Ausgabe wie '1 hour 4 minutes and 32 seconds' ausgibt, wurde zusätzlich eine Klassenmethode hinzugefügt.
 \begin{itemize}
     \item \mintinline{python}{Comparator.sensible_time_output()}
 \end{itemize}
@@ -331,36 +331,36 @@ implementiert, die von entsprechenden Zugriffsfunktionen aus der
 \begin{itemize}
     \item \mintinline{python}{DatabaseHandler()}-Klasse
 \end{itemize} 
-instanziiert werden. Die Comparator-Klasse wird sowohl vom Email-Client als auch vom Webinterface zur Erstellung des Output-Textes zum Energieverbrauch verwendet.
+instanziiert werden. Die Comparator-Klasse wird sowohl vom E-Mail-Client als auch vom Webinterface zur Erstellung des Output-Textes zum Energieverbrauch verwendet.
 \section{Limitationen}
 Die Limitation des Projektes ist vor allem die Bindung des Programms an die Datenbank. Sollte es dort zu einem Fehler oder Ausfall kommen, ist der gesamte Service blockiert. Im Entwicklungsprozess ist dies mehrmals vorgekommen und hat außerdem dazu geführt, dass Jobs im Slurm-Cluster nicht mehr beendet werden konnten und somit das Cluster in einem Fehlerzustand verweilte. Dies kann lange Debugging-Zyklen nach sich ziehen und wäre im Optimalfall natürlich durch eine Fehlerresilienz auszugleichen oder abzufangen.
 
-Programmspezifisch erlaubt EPSA außerdem, genauso wie EPS, kein Energieprofiling in Code-Bereichen. Dies ist eines der Kern-Features von EMA und wäre natürlich sehr hilfreich bei der Identifikation von Energieintensiven Bereichen in einer verteilten Anwendung im Slurm-Kontext. Eine derartige Implementierung würde jedoch eine Reihe von Features benötigen und wäre mit erheblichem Programmieraufwand verbunden.
+Programmspezifisch erlaubt EPSA außerdem, genauso wie EPS, kein Energieprofiling in Code-Bereichen. Dies ist eines der Kern-Features von EMA und wäre natürlich sehr hilfreich bei der Identifikation von energieintensiven Bereichen in einer verteilten Anwendung im Slurm-Kontext. Eine derartige Implementierung würde jedoch eine Reihe von Features benötigen und wäre mit erheblichem Programmieraufwand verbunden.
 
 Zuletzt sei erwähnt, dass es nicht möglich ist, Energiemessungen von abgebrochenen oder fehlerhaft beendeten Jobs zu erheben. Dies ist der Tatsache geschuldet, dass Energiemessungen erst mit dem Durchlauf der Epilog-Funktionen abgelegt werden, die insbesondere nicht aufgerufen werden, wenn das Programm eines Jobs vorzeitig beendet wird.
 \section{Deployment}
 Da das Projekt EPSA von Anfang an mit dem Ziel, in der Produktion eingesetzt zu werden, entwickelt wurde, wurde stets versucht, eine reproduzierbare und wartbare Architektur zu schaffen.
 
-Zunächst muss auf allen Knoten das EPSA-PrEp-Plugin installiert werden. Dazu kann das Github-Repository geforkt werden und mit dem entsprechenden CMakeFile gebaut werden. Als Ergebnis wird eine Shared-Library erstellt, die dann an den entsprechend von Slurm konfigurierten Plugin-Pfaden hinterlegt werden muss. Außerdem benötigt jeder Knoten die notwendigen Postgres-Bibliotheken, die vorzugshalber mithilfe des jeweiligen Betriebssystem-Paketmanagers installiert werden sollten. Dabei ist auf die korrekte Erstellung des Credential-Strings der Postgres-Datenbank zu achten, da diese von den jeweiligen Plugin-Instanzen sowie dem \texttt{awareness\_daemon} benötigt werden.
+Zunächst muss auf allen Knoten das EPSA-PrEp-Plugin installiert werden. Dazu kann das GitHub-Repository geforkt werden und mit dem entsprechenden CMakefile gebaut werden. Als Ergebnis wird eine Shared-Library erstellt, die dann an den entsprechend von Slurm konfigurierten Plugin-Pfaden hinterlegt werden muss. Außerdem benötigt jeder Knoten die notwendigen Postgres-Bibliotheken, die vorzugsweise mithilfe des jeweiligen Betriebssystem-Paketmanagers installiert werden sollten. Dabei ist auf die korrekte Erstellung des Credential-Strings der Postgres-Datenbank zu achten, da diese von den jeweiligen Plugin-Instanzen sowie dem \texttt{awareness\_daemon} benötigt werden.
 
-Um den Build-Prozess möglichst Entwickler*innenfreundlich zu gestalten, wurde ein entsprechendes Skript zum bauen des Plugins erstellt. 
+Um den Build-Prozess möglichst Entwickler*innenfreundlich zu gestalten, wurde ein entsprechendes Skript zum Bauen des Plugins erstellt.
 Es kann wie folgt aufgerufen werden:
 \begin{minted}{bash}
 ./build.sh
 \end{minted}
-Um den \texttt{awareness\_daemon} zu installieren, sollte folgendes ausgeführt werden:
+Um den \texttt{awareness\_daemon} zu installieren, sollte Folgendes ausgeführt werden:
 \begin{minted}{bash}
 cd awareness_daemon
 uv tool install .
 \end{minted}
 Dies installiert das \texttt{awareness\_daemon} an der korrekten, von UV voreingestellten Stelle \cite{uvdoc}. \newpage Im Pfad des \texttt{awareness\_daemon} liegen außerdem zwei Konfigurationsdateien:
 \begin{itemize}
-    \item \texttt{awareness-daemon-config.yaml} beinhaltet allgemeine Serverkonfigurationen wie Ins-tanz-Name, Server-Adresse und Server-Port. Außerdem können der Energiepreis sowie die Landeswährung angepasst werden.
+    \item \texttt{awareness-daemon-config.yaml} beinhaltet allgemeine Serverkonfigurationen wie Instanzname, Server-Adresse und Server-Port. Außerdem können der Energiepreis sowie die Landeswährung angepasst werden.
     \item \texttt{consumers.yaml} beinhaltet eine Liste von Energieverbrauchern mit deren Namen und dem entsprechenden Wattverbrauch.
 \end{itemize}
-Diese Konfigurationen sollten vor inbetriebnahme entsprechend angepasst werden, sind allerdings mit Default-Werten belegt, die der Testumgebung des Clusters an der Universität Potsdam entsprechen.
+Diese Konfigurationen sollten vor der Inbetriebnahme entsprechend angepasst werden, sind allerdings mit Default-Werten belegt, die der Testumgebung des Clusters an der Universität Potsdam entsprechen.
 \section{Fazit und Ausblick}
-Im Rahmen der Projektarbeit wurde das Slurm-PrEp-Plugin EPS erweitert. Ziel war es, ein menschliches Verständnis von Energieverbrauch zu schaffen, indem die gemessenen Werte in den Verbrauch eines vergleichbaren elektrischen Haushaltsgeräts umgerechnet werden. Die so ermittelten Werte können daraufhin entweder innerhalb des Webinterfaces eingesehen oder per Email an die Nutzer*innen des Clusters versendet werden. Diese Funktionalität wurde im sogenannten \texttt{awareness\_daemon} implementiert. Die tatsächliche Wirksamkeit dieser Änderungen auf eine Senkung des allgemeinen Energieverbrauchs konnte innerhalb dieser Arbeit nicht untersucht werden. Dazu bedarf es eines längeren Analysezeitraums, in dem explizit mit und ohne einer Awareness-Struktur der Energieverbrauch in einem definierten Zeitfenster gemessen wird.
+Im Rahmen der Projektarbeit wurde das Slurm-PrEp-Plugin EPS erweitert. Ziel war es, ein menschliches Verständnis von Energieverbrauch zu schaffen, indem die gemessenen Werte in den Verbrauch eines vergleichbaren elektrischen Haushaltsgeräts umgerechnet werden. Die so ermittelten Werte können daraufhin entweder innerhalb des Webinterfaces eingesehen oder per E-Mail an die Nutzer*innen des Clusters versendet werden. Diese Funktionalität wurde im sogenannten \texttt{awareness\_daemon} implementiert. Die tatsächliche Wirksamkeit dieser Änderungen auf eine Senkung des allgemeinen Energieverbrauchs konnte innerhalb dieser Arbeit nicht untersucht werden. Dazu bedarf es eines längeren Analysezeitraums, in dem explizit mit und ohne einer Awareness-Struktur der Energieverbrauch in einem definierten Zeitfenster gemessen wird.
 
 Das Projekt wird auch mit Abgabe dieses Projektes fortgeführt, und es soll unter anderem auf den Slurm-Clustern der Universität Potsdam sowie auf dem Cluster der Universität Cambridge voraussichtlich in Betrieb genommen werden. Als zentrales Repository verbleibt
 \begin{itemize}
